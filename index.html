@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recomendados PRO</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-950 text-white">
+
+<!-- NAV (estilo startup original) -->
+<header class="flex justify-between items-center p-6 max-w-6xl mx-auto">
+  <h1 class="text-xl font-bold">🚀 Recomenda</h1>
+  <nav class="space-x-6 text-sm text-gray-300">
+    <a href="#" class="hover:text-white">Inicio</a>
+    <a href="#" class="hover:text-white">Top</a>
+    <a href="#" class="hover:text-white">Experiencias</a>
+    <button onclick="toggleAdmin()" class="hover:text-white">Admin</button>
+  </nav>
+</header>
+
+<!-- HERO (restaurado) -->
+<section class="text-center py-16 px-6">
+  <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+    Decisiones importantes, bien tomadas
+  </h2>
+  <p class="text-gray-400 max-w-xl mx-auto mb-8">
+    Recomendaciones reales basadas en experiencias propias y verificadas.
+  </p>
+
+  <input id="search" 
+    type="text" 
+    placeholder="Buscar experiencias..." 
+    class="w-full max-w-md p-4 rounded-xl text-black">
+</section>
+
+<!-- GRID -->
+<main class="max-w-6xl mx-auto px-6 pb-16">
+  <div id="grid" class="grid md:grid-cols-3 gap-8"></div>
+</main>
+
+<!-- MODAL -->
+<div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4">
+  <div class="bg-gray-900 max-w-2xl w-full rounded-2xl p-6 overflow-y-auto max-h-[90vh]">
+
+    <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400">✖</button>
+
+    <h2 id="titulo" class="text-2xl font-bold mb-4"></h2>
+    <p id="descripcion" class="text-gray-300 mb-4"></p>
+
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <p id="precio"></p>
+      <p id="ubicacion"></p>
+      <p id="riesgo"></p>
+      <p id="duracion"></p>
+    </div>
+
+    <div class="mb-4">
+      <h3 class="font-semibold">👍 Pros</h3>
+      <ul id="pros" class="text-sm text-gray-400 list-disc ml-5"></ul>
+    </div>
+
+    <div class="mb-4">
+      <h3 class="font-semibold">👎 Contras</h3>
+      <ul id="contras" class="text-sm text-gray-400 list-disc ml-5"></ul>
+    </div>
+
+    <div class="bg-gray-800 p-4 rounded-xl mb-4">
+      <h3 class="font-semibold mb-2">🧠 Lecciones aprendidas</h3>
+      <p id="lecciones" class="text-sm text-gray-400"></p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin" class="hidden fixed bottom-0 right-0 m-6 bg-gray-900 p-4 rounded-xl w-80">
+  <h3 class="font-bold mb-2">➕ Nueva experiencia</h3>
+  <input id="a_titulo" placeholder="Título" class="w-full mb-2 p-2 text-black">
+  <input id="a_desc" placeholder="Descripción" class="w-full mb-2 p-2 text-black">
+  <input id="a_precio" placeholder="Precio" class="w-full mb-2 p-2 text-black">
+  <button onclick="addItem()" class="bg-blue-600 w-full py-2 rounded">Guardar</button>
+</div>
+
+<script>
+let data = [
+  {
+    id: "auto",
+    titulo: "Compra de Auto",
+    descripcion: "Experiencia real comprando vehículo usado",
+    detalle: "Proceso completo comprando un auto usado con validaciones reales",
+    pros: ["Buen precio", "Transferencia rápida"],
+    contras: ["Historial incompleto"],
+    precio: "USD 10.000",
+    ubicacion: "Chaco",
+    riesgo: "Medio",
+    duracion: "2 semanas",
+    lecciones: "Siempre revisar con mecánico y validar papeles"
+  }
+];
+
+const grid = document.getElementById("grid");
+const search = document.getElementById("search");
+
+function render(items) {
+  grid.innerHTML = items.map(item => `
+    <div onclick="goTo('${item.id}')" class="cursor-pointer bg-gray-900 rounded-2xl p-5 hover:scale-105 transition duration-300 shadow-lg">
+      <h3 class="text-lg font-semibold">${item.titulo}</h3>
+      <p class="text-gray-400 text-sm mb-3">${item.descripcion}</p>
+      <div class="flex justify-between items-center">
+        <span class="text-xs bg-green-600 px-2 py-1 rounded">Verificado</span>
+        <span class="text-xs text-gray-400">⚠️ ${item.riesgo}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function goTo(id) {
+  window.location.hash = "/experiencia/" + id;
+  openModal(id);
+}
+
+function openModal(id) {
+  const item = data.find(i => i.id === id);
+  if (!item) return;
+
+  document.getElementById("titulo").innerText = item.titulo;
+  document.getElementById("descripcion").innerText = item.detalle;
+  document.getElementById("precio").innerText = "💰 " + item.precio;
+  document.getElementById("ubicacion").innerText = "📍 " + item.ubicacion;
+  document.getElementById("riesgo").innerText = "⚠️ Riesgo: " + item.riesgo;
+  document.getElementById("duracion").innerText = "⏱ Duración: " + item.duracion;
+  document.getElementById("lecciones").innerText = item.lecciones;
+
+  document.getElementById("pros").innerHTML = item.pros.map(p => `<li>${p}</li>`).join('');
+  document.getElementById("contras").innerHTML = item.contras.map(c => `<li>${c}</li>`).join('');
+
+  document.getElementById("modal").classList.remove("hidden");
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.add("hidden");
+}
+
+function handleRoute() {
+  const hash = window.location.hash;
+  if (hash.startsWith("#/experiencia/")) {
+    const id = hash.split("/experiencia/")[1];
+    openModal(id);
+  }
+}
+
+window.addEventListener("hashchange", handleRoute);
+window.addEventListener("load", handleRoute);
+
+search.addEventListener("input", e => {
+  const value = e.target.value.toLowerCase();
+  const filtered = data.filter(item =>
+    item.titulo.toLowerCase().includes(value) ||
+    item.descripcion.toLowerCase().includes(value)
+  );
+  render(filtered);
+});
+
+function toggleAdmin() {
+  document.getElementById("admin").classList.toggle("hidden");
+}
+
+function addItem() {
+  const titulo = document.getElementById("a_titulo").value;
+  const desc = document.getElementById("a_desc").value;
+  const precio = document.getElementById("a_precio").value;
+
+  const id = titulo.toLowerCase().replace(/ /g, "-");
+
+  data.push({
+    id,
+    titulo,
+    descripcion: desc,
+    detalle: desc,
+    pros: [],
+    contras: [],
+    precio,
+    ubicacion: "",
+    riesgo: "",
+    duracion: "",
+    lecciones: ""
+  });
+
+  render(data);
+}
+
+render(data);
+</script>
+
+</body>
+</html>
